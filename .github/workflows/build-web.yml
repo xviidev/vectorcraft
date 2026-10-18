@@ -47,4 +47,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist/web --project-name=vectorcraft
+            npx wrangler pages project create vectorcraft --production-branch=main || true
+            npx wrangler pages deploy dist/web --project-name=vectorcraft
