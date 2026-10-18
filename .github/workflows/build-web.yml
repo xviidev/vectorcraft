@@ -42,12 +42,9 @@ jobs:
           EOF
           echo "=== Verifikasi isi dist/web/_headers ==="
           cat dist/web/_headers
-
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: vectorcraft-web
-          directory: dist/web
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: pages deploy dist/web --project-name=vectorcraft
