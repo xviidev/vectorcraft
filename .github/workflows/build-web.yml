@@ -1,0 +1,51 @@
+name: Build VectorCraft Web (WASM)
+
+on:
+  push:
+    branches:
+      - main
+      - web-custom       # Ganti/tambahkan nama branch modifikasi Anda
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:     # Tombol manual run di web GitHub Actions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout kode repositori
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Pasang toolchain Rust dan target WebAssembly
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      # 3. Cache Cargo & Build artifacts agar build berikutnya jauh lebih cepat
+      - name: Setup Cargo Cache
+        uses: Swatinem/rust-cache@v2
+
+      # 4. Pasang Trunk (menggunakan binary langsung agar tidak makan waktu kompilasi)
+      - name: Download & Install Trunk
+        run: |
+          wget -qO- https://github.com/trunk-rs/trunk/releases/latest/download/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf- -C /tmp/
+          sudo mv /tmp/trunk /usr/local/bin/trunk
+          trunk --version
+
+      # 5. Build WebAssembly menggunakan Trunk
+      - name: Build Web with Trunk
+        working-directory: apps/vectorcraft-web
+        run: |
+          trunk build --release
+
+      # 6. Simpan hasil build (dist) sebagai Artifact yang bisa diunduh
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vectorcraft-web-dist
+          path: apps/vectorcraft-web/dist
+          retention-days: 7
